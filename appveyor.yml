@@ -1,0 +1,22 @@
+version: 0.{build}.0
+branches:
+  only:
+    - master
+pull_requests:
+  do_not_increment_build_number: true
+image: Visual Studio 2017
+dotnet_csproj:
+  patch: true
+  file: '**\*.csproj'
+  version: '{version}'
+  package_version: '{version}'
+  assembly_version: '{version}'
+  file_version: '{version}'
+  informational_version: '{version}'
+build_script:
+- ps: >- 
+    .\scripts\build.ps1;
+    .\scripts\package.ps1;
+test_script:
+- ps: >-
+    .\scripts\test.ps1
