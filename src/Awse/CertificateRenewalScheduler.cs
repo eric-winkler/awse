@@ -8,14 +8,14 @@ namespace Winkler.Awse.Owin
         public static async Task StartAsync(string hostname)
         {
             var random = new Random();
-            var webapp = new Webapp();
+            var webapp = new Webapp(hostname);
 
             while (true)
             {
-                if (webapp.IsCertificateDueForRenewal())
+                if (await webapp.IsCertificateDueForRenewalAsync())
                 {
-                    var cert = await AcmeCertificate.CreateAsync(hostname, "");
-                    await webapp.InstallCertificateAsync(cert.Bytes);
+                    var cert = await AcmeCertificate.CreateAsync(hostname, "password");
+                    await webapp.InstallCertificateAsync(cert.Bytes, "password");
                 }
 
                 await Task.Delay(TimeSpan.FromMinutes(random.Next(0, 24 * 60)));
