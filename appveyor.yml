@@ -1,4 +1,4 @@
-version: 0.{build}.0
+version: 0.{build}.0-preview
 branches:
   only:
     - master
