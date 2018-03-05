@@ -5,9 +5,11 @@ namespace Winkler.Awse.Owin
 {
     public class CertificateRenewalScheduler
     {
+        private static Random _random;
+
         public static async Task StartAsync(string hostname)
         {
-            var random = new Random();
+            _random = new Random();
             var webapp = new Webapp(hostname);
 
             while (true)
@@ -18,8 +20,13 @@ namespace Winkler.Awse.Owin
                     await webapp.InstallCertificateAsync(cert.Bytes, "password");
                 }
 
-                await Task.Delay(TimeSpan.FromMinutes(random.Next(0, 24 * 60)));
+                await RetryDelay();
             }
+        }
+
+        internal static Task RetryDelay()
+        {
+            return Task.Delay(TimeSpan.FromMinutes(_random.Next(0, 24 * 60)));
         }
     }
 }
