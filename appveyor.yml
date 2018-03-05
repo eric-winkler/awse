@@ -20,3 +20,5 @@ build_script:
 test_script:
 - ps: >-
     .\scripts\test.ps1
+artifacts:
+- path: '**\*.nupkg'
