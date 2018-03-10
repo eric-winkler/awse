@@ -7,9 +7,17 @@
     <AssemblyName>Winkler.Awse.Owin</AssemblyName>
     <RootNamespace>Winkler.Awse.Owin</RootNamespace>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludeLibAssemblies</TargetsForTfmSpecificBuildOutput>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludeLibAssemblies</TargetsForTfmSpecificBuildOutput>
+    <Authors>Eric Winkler</Authors>
+    <Description>ACME SSL Endpoint OWIN middleware for Azure Websites</Description>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <Copyright>Copyright 2018 (c) Eric Winkler. All rights reserved.</Copyright>
+    <PackageTags>ACME SSL website owin</PackageTags>
+  </PropertyGroup>
+  
   <Target Name="IncludeLibAssemblies">
     <ItemGroup>
       <BuildOutputInPackage Include="$(OutputPath)Microsoft.Azure.Management.AppService.Fluent.dll" />
