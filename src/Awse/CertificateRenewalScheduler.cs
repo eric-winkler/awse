@@ -11,10 +11,11 @@ namespace Winkler.Awse.Owin
         {
             _random = new Random();
             var webapp = new Webapp(hostname);
+            await webapp.CheckPrincipalPrivileges();
 
             while (true)
             {
-                if (await webapp.IsCertificateDueForRenewalAsync())
+                if (webapp.IsCertificateDueForRenewal())
                 {
                     var cert = await AcmeCertificate.CreateAsync(hostname, "password");
                     await webapp.InstallCertificateAsync(cert.Bytes, "password");

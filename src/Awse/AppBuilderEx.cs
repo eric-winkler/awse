@@ -29,7 +29,7 @@ namespace Winkler.Awse.Owin
             if(task.Exception == null)
                 Trace.WriteLine("Certificate renewal scheduler unexpectedly exited without an exception");
             else
-                Trace.WriteLine("Certificate renewal scheduler failure" + Environment.NewLine +  task.Exception);
+                Trace.WriteLine("Certificate renewal scheduler failure" + Environment.NewLine + task.Exception);
 
             CertificateRenewalScheduler.RetryDelay()
                 .ContinueWith(_ => CertificateRenewalScheduler.StartAsync(hostname)

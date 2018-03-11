@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.Management.AppService.Fluent;
 using Microsoft.Azure.Management.Fluent;
 using Microsoft.Azure.Management.ResourceManager.Fluent;
 using Microsoft.Azure.Management.ResourceManager.Fluent.Authentication;
-using Microsoft.Azure.Management.ResourceManager.Fluent.Core;
-using Microsoft.Azure.Services.AppAuthentication;
-using Microsoft.Rest;
 
 namespace Winkler.Awse.Owin
 {
@@ -21,31 +19,40 @@ namespace Winkler.Awse.Owin
             _hostname = hostname;
         }
 
-        public async Task<bool> IsCertificateDueForRenewalAsync()
+        public async Task CheckPrincipalPrivileges()
         {
-            return (await WebappsNeedingRenewalAsync())
-                .Any();
+            if (!(await BuildAzureClient().Subscriptions.ListAsync()).Any())
+                throw new InvalidOperationException("MSI cannot access any subscriptions");
+
+            if (!(await BuildAzureClient().WebApps.ListAsync()).Any())
+                throw new InvalidOperationException("MSI cannot access any webapps");
+        }
+
+        public bool IsCertificateDueForRenewal()
+        {
+            return WebappsNeedingRenewal().Any();
         }
 
         public async Task InstallCertificateAsync(byte[] cert, string password)
         {
-            var webapps = await WebappsNeedingRenewalAsync();
-
-            foreach (var webapp in webapps)
+            foreach (var webapp in WebappsNeedingRenewal())
             {
-                webapp
+                await webapp
                     .Update()
                     .DefineSslBinding()
                     .ForHostname(_hostname)
                     .WithPfxByteArrayToUpload(cert, "password")
                     .WithSniBasedSsl()
-                    .Attach();
+                    .Attach()
+                    .ApplyAsync();
+
+                Trace.WriteLine("Certificate installed");
             }
         }
 
-        private async Task<IEnumerable<IWebApp>> WebappsNeedingRenewalAsync()
+        private IEnumerable<IWebApp> WebappsNeedingRenewal()
         {
-            return (await BuildAzureClientAsync())
+            return BuildAzureClient()
                 .WebApps
                 .List()
                 .Where(a => a.EnabledHostNames.Contains(_hostname))
@@ -65,21 +72,10 @@ namespace Winkler.Awse.Owin
                    && certificate.Issuer.ToLower().Contains("let's encrypt");
         }
 
-        private async Task<IAzure> BuildAzureClientAsync()
+        private static IAzure BuildAzureClient()
         {
-            var azureServiceTokenProvider = new AzureServiceTokenProvider();
-            var token = await azureServiceTokenProvider.GetAccessTokenAsync("https://management.core.windows.net/");
-            var tenantId = azureServiceTokenProvider.PrincipalUsed.TenantId;
-
-            var client = RestClient
-                .Configure()
-                .WithEnvironment(AzureEnvironment.AzureGlobalCloud)
-                .WithLogLevel(HttpLoggingDelegatingHandler.Level.Basic)
-                .WithCredentials(new AzureCredentials(new TokenCredentials(token), tenantId, AzureEnvironment.AzureGlobalCloud))
-                .Build();
-
             return Azure
-                .Authenticate(client, tenantId)
+                .Authenticate(new AzureCredentials(new MSILoginInformation(MSIResourceType.AppService), AzureEnvironment.AzureGlobalCloud))
                 .WithDefaultSubscription();
         }
     }
