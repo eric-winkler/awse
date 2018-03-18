@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Certes;
 using Certes.Acme;
+using Certes.Acme.Resource;
 using Certes.Pkcs;
 
 namespace Winkler.Awse.Owin
@@ -10,7 +11,7 @@ namespace Winkler.Awse.Owin
     class AcmeCertificate : IDisposable
     {
         private readonly AcmeClient _acmeClient;
-        private Challenge _challenge;
+        private ChallengeEntity _challenge;
         private Uri _challengeLocation;
 
         public string Hostname { get; private set; }
