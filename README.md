@@ -5,6 +5,11 @@ ACME Webapp SSL Endpoint
 
 Streamlines the integration of an ACME generated SSL certificate into an Azure Website.
 
+### Usage
+After installing the package;
+* for an owin based application, add the following where you have access to an IAppBuilder:
+`app.UseAcmeSsl("awesome.domainname.com");`
+
 ### Known Limitations
 * Currently only generates test certificates (from the Let's Encrypt staging servers)
 * Uses static variables to persist state for certificate generation handshake - this won't work on any multi-instance \ scaled out application
