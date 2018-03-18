@@ -18,6 +18,11 @@ namespace Winkler.Awse.Owin
         public byte[] Bytes { get; private set; }
 
         private static readonly object Lock = new object();
+
+        // TODO: This approach won't work on multi-instance applications
+        // option1: webapp persisted\shared filesystem, won't work with local cache enabled
+        // option2: use MSI principal to create an app setting, will trigger an overlapped recycle
+        // option3: use MSI principal to create a keyvault\storageaccount\etc
         public static AcmeCertificate Current { get; private set; }
         
         private AcmeCertificate(AcmeClient acmeClient, string hostname)
